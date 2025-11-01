@@ -9,12 +9,9 @@ import com.employee.utils.ImageUtils;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 
 public class EmployeeDialog extends JDialog {
@@ -64,7 +61,6 @@ public class EmployeeDialog extends JDialog {
     }
 
     private void initializeComponents() {
-        // Form fields - all using plain JTextField
         firstNameField = new JTextField(20);
         lastNameField = new JTextField(20);
         emailField = new JTextField(20);
@@ -87,7 +83,6 @@ public class EmployeeDialog extends JDialog {
         profilePictureLabel.setHorizontalAlignment(SwingConstants.CENTER);
         profilePictureLabel.setText("No Image");
 
-        // Buttons
         saveButton = new JButton("Save");
         cancelButton = new JButton("Cancel");
         browseButton = new JButton("Browse");
@@ -103,14 +98,13 @@ public class EmployeeDialog extends JDialog {
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // Form panel
         JPanel formPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(8, 8, 8, 8);
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // First row
+        // ===== Row 0 =====
         gbc.gridx = 0; gbc.gridy = 0;
         formPanel.add(new JLabel("First Name:"), gbc);
         gbc.gridx = 1;
@@ -121,14 +115,15 @@ public class EmployeeDialog extends JDialog {
         gbc.gridx = 3;
         formPanel.add(lastNameField, gbc);
 
-        // Second row
+        // ===== Row 1 =====
         gbc.gridx = 0; gbc.gridy = 1;
         formPanel.add(new JLabel("Email:"), gbc);
         gbc.gridx = 1; gbc.gridwidth = 3;
         formPanel.add(emailField, gbc);
+        gbc.gridwidth = 1;
 
-        // Third row
-        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 1;
+        // ===== Row 2 =====
+        gbc.gridx = 0; gbc.gridy = 2;
         formPanel.add(new JLabel("Phone:"), gbc);
         gbc.gridx = 1;
         formPanel.add(phoneField, gbc);
@@ -138,7 +133,7 @@ public class EmployeeDialog extends JDialog {
         gbc.gridx = 3;
         formPanel.add(departmentCombo, gbc);
 
-        // Fourth row
+        // ===== Row 3 =====
         gbc.gridx = 0; gbc.gridy = 3;
         formPanel.add(new JLabel("Position:"), gbc);
         gbc.gridx = 1;
@@ -149,24 +144,20 @@ public class EmployeeDialog extends JDialog {
         gbc.gridx = 3;
         formPanel.add(salaryField, gbc);
 
-        // Fifth row
+        // ===== Row 4 ===== (Hire Date)
         gbc.gridx = 0; gbc.gridy = 4;
-        formPanel.add(new JLabel("Hire Date:"), gbc);
+        formPanel.add(new JLabel("Hire Date (YYYY-MM-DD):"), gbc);
         gbc.gridx = 1;
         formPanel.add(hireDateField, gbc);
-        formPanel.add(new JLabel("(YYYY-MM-DD)"), gbc);
 
-
-        gbc.gridx = 2;
-        formPanel.add(new JLabel("Date of Birth:"), gbc);
-        gbc.gridx = 3;
-        formPanel.add(dobField, gbc);
-        formPanel.add(new JLabel("(YYYY-MM-DD)"), gbc);
-
-
-
-        // Sixth row
+        // ===== Row 5 ===== (Date of Birth)
         gbc.gridx = 0; gbc.gridy = 5;
+        formPanel.add(new JLabel("Date of Birth (YYYY-MM-DD):"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(dobField, gbc);
+
+        // ===== Row 6 =====
+        gbc.gridx = 0; gbc.gridy = 6;
         formPanel.add(new JLabel("Gender:"), gbc);
         gbc.gridx = 1;
         formPanel.add(genderCombo, gbc);
@@ -176,14 +167,15 @@ public class EmployeeDialog extends JDialog {
         gbc.gridx = 3;
         formPanel.add(statusCombo, gbc);
 
-        // Seventh row
-        gbc.gridx = 0; gbc.gridy = 6;
+        // ===== Row 7 =====
+        gbc.gridx = 0; gbc.gridy = 7;
         formPanel.add(new JLabel("Address:"), gbc);
         gbc.gridx = 1; gbc.gridwidth = 3; gbc.fill = GridBagConstraints.BOTH;
         JScrollPane addressScrollPane = new JScrollPane(addressArea);
         formPanel.add(addressScrollPane, gbc);
+        gbc.gridwidth = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Profile picture panel
+        // ===== Profile Picture Panel =====
         JPanel profilePanel = new JPanel(new BorderLayout());
         profilePanel.setBorder(BorderFactory.createTitledBorder("Profile Picture"));
         profilePanel.add(profilePictureLabel, BorderLayout.CENTER);
@@ -192,12 +184,12 @@ public class EmployeeDialog extends JDialog {
         browsePanel.add(browseButton);
         profilePanel.add(browsePanel, BorderLayout.SOUTH);
 
-        // Button panel
+        // ===== Buttons =====
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.add(saveButton);
         buttonPanel.add(cancelButton);
 
-        // Layout
+        // ===== Combine Panels =====
         JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.add(formPanel, BorderLayout.CENTER);
 
@@ -215,39 +207,19 @@ public class EmployeeDialog extends JDialog {
     }
 
     private void setupListeners() {
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveEmployee();
-            }
-        });
-
-        cancelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-            }
-        });
-
-        browseButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                browseProfilePicture();
-            }
-        });
+        saveButton.addActionListener(e -> saveEmployee());
+        cancelButton.addActionListener(e -> dispose());
+        browseButton.addActionListener(e -> browseProfilePicture());
     }
 
     private void populateFields() {
-        if (employee == null) {
-            return;
-        }
+        if (employee == null) return;
 
         firstNameField.setText(employee.getFirstName());
         lastNameField.setText(employee.getLastName());
         emailField.setText(employee.getEmail());
         phoneField.setText(employee.getPhone());
 
-        // Select department
         for (int i = 0; i < departmentCombo.getItemCount(); i++) {
             Department dept = departmentCombo.getItemAt(i);
             if (dept.getDepartmentId() == employee.getDepartmentId()) {
@@ -259,42 +231,40 @@ public class EmployeeDialog extends JDialog {
         positionField.setText(employee.getPosition());
         salaryField.setText(String.valueOf(employee.getSalary()));
 
-        // Set dates
-        if (employee.getHireDate() != null) {
+        if (employee.getHireDate() != null)
             hireDateField.setText(employee.getHireDate().format(DATE_FORMATTER));
-        }
 
-        if (employee.getDateOfBirth() != null) {
+        if (employee.getDateOfBirth() != null)
             dobField.setText(employee.getDateOfBirth().format(DATE_FORMATTER));
-        }
 
         addressArea.setText(employee.getAddress());
         genderCombo.setSelectedItem(employee.getGender());
         statusCombo.setSelectedItem(employee.getStatus());
 
+        // ✅ Enhanced image loading
         if (employee.getProfilePicture() != null && !employee.getProfilePicture().isEmpty()) {
             profilePicturePath = employee.getProfilePicture();
-            ImageIcon icon = new ImageIcon(profilePicturePath);
-            Image image = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
-            profilePictureLabel.setIcon(new ImageIcon(image));
-            profilePictureLabel.setText("");
+            ImageIcon icon = ImageUtils.resizeImage(profilePicturePath, 150, 150);
+            if (icon != null) {
+                profilePictureLabel.setIcon(icon);
+                profilePictureLabel.setText("");
+            } else {
+                profilePictureLabel.setText("No Image");
+            }
         }
     }
 
     private void saveEmployee() {
-        // Validate fields
         if (firstNameField.getText().trim().isEmpty() ||
                 lastNameField.getText().trim().isEmpty() ||
                 emailField.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill in all required fields", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please fill in all required fields",
+                    "Validation Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         try {
-            // Create or update employee
-            if (employee == null) {
-                employee = new Employee();
-            }
+            if (employee == null) employee = new Employee();
 
             employee.setFirstName(firstNameField.getText().trim());
             employee.setLastName(lastNameField.getText().trim());
@@ -302,84 +272,63 @@ public class EmployeeDialog extends JDialog {
             employee.setPhone(phoneField.getText().trim());
 
             Department selectedDept = (Department) departmentCombo.getSelectedItem();
-            if (selectedDept != null) {
+            if (selectedDept != null)
                 employee.setDepartmentId(selectedDept.getDepartmentId());
-            }
 
             employee.setPosition(positionField.getText().trim());
+            employee.setSalary(Double.parseDouble(salaryField.getText().trim()));
 
-            try {
-                employee.setSalary(Double.parseDouble(salaryField.getText().trim()));
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Invalid salary format", "Validation Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+            if (!hireDateField.getText().trim().isEmpty())
+                employee.setHireDate(LocalDate.parse(hireDateField.getText().trim(), DATE_FORMATTER));
 
-            // Parse dates from text fields
-            String hireDateText = hireDateField.getText().trim();
-            String dobText = dobField.getText().trim();
-
-            if (!hireDateText.isEmpty()) {
-                try {
-                    employee.setHireDate(LocalDate.parse(hireDateText, DATE_FORMATTER));
-                } catch (DateTimeParseException e) {
-                    JOptionPane.showMessageDialog(this, "Invalid hire date format. Use YYYY-MM-DD", "Validation Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-            }
-
-            if (!dobText.isEmpty()) {
-                try {
-                    employee.setDateOfBirth(LocalDate.parse(dobText, DATE_FORMATTER));
-                } catch (DateTimeParseException e) {
-                    JOptionPane.showMessageDialog(this, "Invalid date of birth format. Use YYYY-MM-DD", "Validation Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-            }
+            if (!dobField.getText().trim().isEmpty())
+                employee.setDateOfBirth(LocalDate.parse(dobField.getText().trim(), DATE_FORMATTER));
 
             employee.setAddress(addressArea.getText().trim());
             employee.setGender((String) genderCombo.getSelectedItem());
             employee.setStatus((String) statusCombo.getSelectedItem());
             employee.setProfilePicture(profilePicturePath);
 
-            boolean success;
-            if (employee.getEmployeeId() > 0) {
-                success = employeeDAO.updateEmployee(employee);
-            } else {
-                success = employeeDAO.addEmployee(employee);
-            }
+            boolean success = employee.getEmployeeId() > 0
+                    ? employeeDAO.updateEmployee(employee)
+                    : employeeDAO.addEmployee(employee);
 
             if (success) {
                 saved = true;
-                JOptionPane.showMessageDialog(this, "Employee saved successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Employee saved successfully",
+                        "Success", JOptionPane.INFORMATION_MESSAGE);
                 dispose();
             } else {
-                JOptionPane.showMessageDialog(this, "Failed to save employee", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Failed to save employee",
+                        "Error", JOptionPane.ERROR_MESSAGE);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "An error occurred: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void browseProfilePicture() {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Image files", ImageUtils.IMAGE_EXTENSIONS));
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
+                "Image files", ImageUtils.IMAGE_EXTENSIONS));
 
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             profilePicturePath = selectedFile.getAbsolutePath();
-
-            ImageIcon icon = new ImageIcon(profilePicturePath);
-            Image image = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
-            profilePictureLabel.setIcon(new ImageIcon(image));
-            profilePictureLabel.setText("");
+            ImageIcon icon = ImageUtils.resizeImage(profilePicturePath, 150, 150);
+            if (icon != null) {
+                profilePictureLabel.setIcon(icon);
+                profilePictureLabel.setText("");
+            }
         }
     }
 
     private void configureDialog() {
-        setSize(800, 600);
+        setSize(850, 600);
         setLocationRelativeTo(getParent());
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }

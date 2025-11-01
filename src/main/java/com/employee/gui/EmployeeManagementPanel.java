@@ -10,10 +10,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.util.List;
 import java.util.Vector;
@@ -86,12 +83,10 @@ public class EmployeeManagementPanel extends JPanel {
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // Title
         JLabel titleLabel = new JLabel("Employee Management");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        // Search panel
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         searchPanel.add(new JLabel("Search:"));
         searchPanel.add(searchField);
@@ -102,22 +97,18 @@ public class EmployeeManagementPanel extends JPanel {
         searchPanel.add(searchButton);
         searchPanel.add(refreshButton);
 
-        // Button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         buttonPanel.add(addButton);
         buttonPanel.add(editButton);
         buttonPanel.add(deleteButton);
 
-        // Table panel
         JScrollPane tableScrollPane = new JScrollPane(employeeTable);
         tableScrollPane.setPreferredSize(new Dimension(0, 400));
 
-        // Profile panel
         JPanel profilePanel = new JPanel(new BorderLayout());
         profilePanel.setBorder(BorderFactory.createTitledBorder("Employee Profile"));
         profilePanel.add(profilePictureLabel, BorderLayout.CENTER);
 
-        // Layout
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(titleLabel, BorderLayout.NORTH);
         topPanel.add(searchPanel, BorderLayout.CENTER);
@@ -132,40 +123,11 @@ public class EmployeeManagementPanel extends JPanel {
     }
 
     private void setupListeners() {
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addEmployee();
-            }
-        });
-
-        editButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                editEmployee();
-            }
-        });
-
-        deleteButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                deleteEmployee();
-            }
-        });
-
-        refreshButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                loadEmployees();
-            }
-        });
-
-        searchButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                searchEmployees();
-            }
-        });
+        addButton.addActionListener(e -> addEmployee());
+        editButton.addActionListener(e -> editEmployee());
+        deleteButton.addActionListener(e -> deleteEmployee());
+        refreshButton.addActionListener(e -> loadEmployees());
+        searchButton.addActionListener(e -> searchEmployees());
 
         employeeTable.addMouseListener(new MouseAdapter() {
             @Override
@@ -198,7 +160,6 @@ public class EmployeeManagementPanel extends JPanel {
             row.add(employee.getEmail());
             row.add(employee.getPhone());
 
-            // Get department name
             Department dept = departmentDAO.getDepartmentById(employee.getDepartmentId());
             row.add(dept != null ? dept.getName() : "N/A");
 
@@ -232,6 +193,7 @@ public class EmployeeManagementPanel extends JPanel {
         if (dialog.isSaved()) {
             loadEmployees();
             loadPositions();
+            displayEmployeeProfile();
         }
     }
 
@@ -251,6 +213,7 @@ public class EmployeeManagementPanel extends JPanel {
         if (dialog.isSaved()) {
             loadEmployees();
             loadPositions();
+            displayEmployeeProfile();
         }
     }
 
@@ -290,14 +253,13 @@ public class EmployeeManagementPanel extends JPanel {
         if ("All Departments".equals(department)) {
             department = "";
         }
-
         if ("All Positions".equals(position)) {
             position = "";
         }
 
         List<Employee> employees = employeeDAO.searchEmployees(searchTerm, department, position);
-
         tableModel.setRowCount(0);
+
         for (Employee employee : employees) {
             Vector<Object> row = new Vector<>();
             row.add(employee.getEmployeeId());
@@ -305,19 +267,16 @@ public class EmployeeManagementPanel extends JPanel {
             row.add(employee.getLastName());
             row.add(employee.getEmail());
             row.add(employee.getPhone());
-
-            // Get department name
             Department dept = departmentDAO.getDepartmentById(employee.getDepartmentId());
             row.add(dept != null ? dept.getName() : "N/A");
-
             row.add(employee.getPosition());
             row.add(employee.getSalary());
             row.add(employee.getStatus());
-
             tableModel.addRow(row);
         }
     }
 
+    // ✅ Updated to support URL or local file image display
     private void displayEmployeeProfile() {
         int selectedRow = employeeTable.getSelectedRow();
         if (selectedRow == -1) {
@@ -328,16 +287,21 @@ public class EmployeeManagementPanel extends JPanel {
         Employee employee = employeeDAO.getEmployeeById(employeeId);
 
         if (employee != null && employee.getProfilePicture() != null && !employee.getProfilePicture().isEmpty()) {
-            ImageIcon icon = new ImageIcon(employee.getProfilePicture());
-            Image image = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
-            profilePictureLabel.setIcon(new ImageIcon(image));
-            profilePictureLabel.setText("");
+            ImageIcon icon = ImageUtils.resizeImage(employee.getProfilePicture(), 150, 150);
+            if (icon != null) {
+                profilePictureLabel.setIcon(icon);
+                profilePictureLabel.setText("");
+            } else {
+                profilePictureLabel.setIcon(null);
+                profilePictureLabel.setText("No Image");
+            }
         } else {
             profilePictureLabel.setIcon(null);
             profilePictureLabel.setText("No Image");
         }
     }
 
+    // ✅ Updated for consistency with ImageUtils
     private void changeProfilePicture() {
         int selectedRow = employeeTable.getSelectedRow();
         if (selectedRow == -1) {
@@ -359,9 +323,8 @@ public class EmployeeManagementPanel extends JPanel {
             if (employee != null) {
                 employee.setProfilePicture(imagePath);
                 if (employeeDAO.updateEmployee(employee)) {
-                    ImageIcon icon = new ImageIcon(imagePath);
-                    Image image = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
-                    profilePictureLabel.setIcon(new ImageIcon(image));
+                    ImageIcon icon = ImageUtils.resizeImage(imagePath, 150, 150);
+                    profilePictureLabel.setIcon(icon);
                     profilePictureLabel.setText("");
                     JOptionPane.showMessageDialog(this, "Profile picture updated successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
                 } else {
