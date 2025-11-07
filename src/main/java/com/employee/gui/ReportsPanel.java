@@ -3,51 +3,41 @@ package com.employee.gui;
 import com.employee.dao.AttendanceDAO;
 import com.employee.dao.DepartmentDAO;
 import com.employee.dao.EmployeeDAO;
-import com.employee.model.Attendance;
 import com.employee.model.Department;
 import com.employee.model.Employee;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PiePlot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.*;
+import org.jfree.chart.plot.*;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.data.xy.XYDataset;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import javax.swing.border.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
+import java.io.PrintWriter;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class ReportsPanel extends JPanel {
-    private EmployeeDAO employeeDAO;
-    private DepartmentDAO departmentDAO;
-    private AttendanceDAO attendanceDAO;
+    private final EmployeeDAO employeeDAO;
+    private final DepartmentDAO departmentDAO;
+    private final AttendanceDAO attendanceDAO;
     private JTabbedPane reportTabs;
-    private JTextField startDateField;
-    private JTextField endDateField;
-    private JButton generateButton;
-    private JButton exportButton;
-    private JButton pdfButton;
+    private JTextField startDateField, endDateField;
+    private JButton generateButton, exportButton;
 
     public ReportsPanel() {
         employeeDAO = new EmployeeDAO();
         departmentDAO = new DepartmentDAO();
         attendanceDAO = new AttendanceDAO();
+
         initializeComponents();
         layoutComponents();
         setupListeners();
@@ -56,370 +46,313 @@ public class ReportsPanel extends JPanel {
 
     private void initializeComponents() {
         reportTabs = new JTabbedPane();
+        reportTabs.setFont(new Font("Poppins", Font.PLAIN, 14));
+        reportTabs.setBackground(Color.WHITE);
 
-        // Date fields
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.minusDays(30);
         startDateField = new JTextField(startDate.toString(), 10);
         endDateField = new JTextField(endDate.toString(), 10);
 
-        generateButton = new JButton("Generate Reports");
-        exportButton = new JButton("Export to CSV");
-        pdfButton = new JButton("Export to PDF");
+        generateButton = createGradientButton("Generate Reports", new Color(56, 102, 255), new Color(46, 90, 240));
+        exportButton = createGradientButton("📤 Export CSV", new Color(0, 184, 148), new Color(0, 151, 136));
+    }
+
+    private JButton createGradientButton(String text, Color start, Color end) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                GradientPaint gp = new GradientPaint(0, 0, start, getWidth(), getHeight(), end);
+                g2.setPaint(gp);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+
+                g2.setColor(Color.WHITE);
+                g2.setFont(getFont());
+                FontMetrics fm = g2.getFontMetrics();
+                int textWidth = fm.stringWidth(getText());
+                int textHeight = fm.getAscent();
+                g2.drawString(getText(), (getWidth() - textWidth) / 2, (getHeight() + textHeight) / 2 - 3);
+
+                g2.dispose();
+            }
+        };
+        btn.setFont(new Font("Poppins SemiBold", Font.BOLD, 14));
+        btn.setPreferredSize(new Dimension(180, 40));
+        btn.setContentAreaFilled(false);
+        btn.setFocusPainted(false);
+        btn.setOpaque(false);
+        btn.setBorder(new EmptyBorder(10, 20, 10, 20));
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                btn.setForeground(new Color(255, 255, 255, 230));
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                btn.setForeground(Color.WHITE);
+            }
+        });
+        return btn;
     }
 
     private void layoutComponents() {
-        setLayout(new BorderLayout());
-        setBorder(new EmptyBorder(20, 20, 20, 20));
+        setLayout(new BorderLayout(15, 15));
+        setBackground(new Color(247, 249, 252));
+        setBorder(new EmptyBorder(20, 25, 20, 25));
 
-        // Title
-        JLabel titleLabel = new JLabel("Reports & Analytics");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        JLabel title = new JLabel("📊 Reports & Analytics");
+        title.setFont(new Font("Poppins SemiBold", Font.BOLD, 24));
+        title.setForeground(new Color(33, 37, 41));
 
-        // Control panel
-        JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        controlPanel.add(new JLabel("From:"));
-        controlPanel.add(startDateField);
-        controlPanel.add(new JLabel("To:"));
-        controlPanel.add(endDateField);
-        controlPanel.add(generateButton);
-        controlPanel.add(exportButton);
-        controlPanel.add(pdfButton);
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 8));
+        filterPanel.setBackground(Color.WHITE);
+        filterPanel.setBorder(new CompoundBorder(
+                new LineBorder(new Color(230, 230, 230), 1, true),
+                new EmptyBorder(10, 15, 10, 15)
+        ));
+        filterPanel.add(new JLabel("From:"));
+        filterPanel.add(startDateField);
+        filterPanel.add(new JLabel("To:"));
+        filterPanel.add(endDateField);
+        filterPanel.add(generateButton);
+        filterPanel.add(exportButton);
 
-        // Create report tabs
-        reportTabs.addTab("Employee Statistics", createEmployeeStatsPanel());
-        reportTabs.addTab("Department Analysis", createDepartmentAnalysisPanel());
-        reportTabs.addTab("Attendance Trends", createAttendanceTrendsPanel());
-        reportTabs.addTab("Salary Reports", createSalaryReportsPanel());
-        reportTabs.addTab("Performance Metrics", createPerformanceMetricsPanel());
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(Color.WHITE);
+        headerPanel.setBorder(new CompoundBorder(
+                new LineBorder(new Color(230, 230, 230), 1, true),
+                new EmptyBorder(15, 25, 15, 25)
+        ));
+        headerPanel.add(title, BorderLayout.WEST);
+        headerPanel.add(filterPanel, BorderLayout.EAST);
 
-        // Layout
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.add(titleLabel, BorderLayout.NORTH);
-        topPanel.add(controlPanel, BorderLayout.CENTER);
-
-        add(topPanel, BorderLayout.NORTH);
+        add(headerPanel, BorderLayout.NORTH);
         add(reportTabs, BorderLayout.CENTER);
     }
 
     private void setupListeners() {
-        generateButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                generateAllReports();
-            }
-        });
-
-        exportButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                exportToCSV();
-            }
-        });
-
-        pdfButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                exportToPDF();
-            }
-        });
+        generateButton.addActionListener(this::generateReports);
+        exportButton.addActionListener(this::exportCSV);
     }
 
-    private JPanel createEmployeeStatsPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
+    private void generateReports(ActionEvent e) {
+        generateAllReports();
+        JOptionPane.showMessageDialog(this, "Reports updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+    }
 
-        // Create pie chart for employee distribution by department
+    private void generateAllReports() {
+        reportTabs.removeAll();
+
+        reportTabs.addTab("Employee Overview", createCardPanel(createEmployeeStatsChart()));
+        reportTabs.addTab("Department Analysis", createCardPanel(createDepartmentChart()));
+        reportTabs.addTab("Attendance Trends", createCardPanel(createAttendanceChart()));
+        reportTabs.addTab("Salary Insights", createCardPanel(createSalaryChart()));
+        reportTabs.addTab("Performance Metrics", createCardPanel(createPerformanceTable()));
+
+        reportTabs.revalidate();
+        reportTabs.repaint();
+    }
+
+    private JPanel createCardPanel(JComponent chartPanel) {
+        JPanel card = new JPanel(new BorderLayout());
+        card.setBackground(Color.WHITE);
+        card.setBorder(new CompoundBorder(
+                new LineBorder(new Color(230, 230, 230), 1, true),
+                new EmptyBorder(20, 20, 20, 20)
+        ));
+        card.add(chartPanel, BorderLayout.CENTER);
+        return card;
+    }
+
+    private ChartPanel createEmployeeStatsChart() {
         DefaultPieDataset dataset = new DefaultPieDataset();
-        List<Department> departments = departmentDAO.getAllDepartments();
-
-        for (Department dept : departments) {
+        for (Department dept : departmentDAO.getAllDepartments()) {
             int count = departmentDAO.getEmployeeCountByDepartment(dept.getDepartmentId());
-            if (count > 0) {
-                dataset.setValue(dept.getName(), count);
-            }
+            if (count > 0) dataset.setValue(dept.getName(), count);
         }
 
-        JFreeChart chart = ChartFactory.createPieChart(
-                "Employee Distribution by Department",
-                dataset,
-                true,
-                true,
-                false
-        );
-
+        JFreeChart chart = ChartFactory.createPieChart("Employee Distribution by Department", dataset, true, true, false);
         PiePlot plot = (PiePlot) chart.getPlot();
-        plot.setSectionPaint("Other", new Color(200, 200, 200));
         plot.setBackgroundPaint(Color.WHITE);
-        plot.setLegendLabelGenerator(new org.jfree.chart.labels.StandardPieSectionLabelGenerator(
-                "{0} ({1} employees - {2})"));
-
-        panel.add(new ChartPanel(chart), BorderLayout.CENTER);
-        return panel;
+        plot.setSectionOutlinesVisible(false);
+        plot.setSimpleLabels(true);
+        chart.setBackgroundPaint(Color.WHITE);
+        return new ChartPanel(chart);
     }
 
-    private JPanel createDepartmentAnalysisPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-
-        // Create bar chart for department-wise employee count
+    private ChartPanel createDepartmentChart() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        List<Department> departments = departmentDAO.getAllDepartments();
-
-        for (Department dept : departments) {
+        for (Department dept : departmentDAO.getAllDepartments()) {
             int count = departmentDAO.getEmployeeCountByDepartment(dept.getDepartmentId());
             dataset.addValue(count, "Employees", dept.getName());
         }
 
-        JFreeChart chart = ChartFactory.createBarChart(
-                "Department-wise Employee Count",
-                "Department",
-                "Number of Employees",
-                dataset,
-                PlotOrientation.VERTICAL,
-                true,
-                true,
-                false
-        );
+        JFreeChart chart = ChartFactory.createBarChart("Employees per Department", "Department", "Employees", dataset);
+        CategoryPlot plot = (CategoryPlot) chart.getPlot();
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setRangeGridlinePaint(new Color(230, 230, 230));
 
+        BarRenderer renderer = (BarRenderer) plot.getRenderer();
+        renderer.setSeriesPaint(0, new Color(99, 102, 241));
+        renderer.setBarPainter(new StandardBarPainter());
         chart.setBackgroundPaint(Color.WHITE);
-
-        panel.add(new ChartPanel(chart), BorderLayout.CENTER);
-        return panel;
+        return new ChartPanel(chart);
     }
 
-    private JPanel createAttendanceTrendsPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
+    private ChartPanel createAttendanceChart() {
+        TimeSeries present = new TimeSeries("Present");
+        TimeSeries absent = new TimeSeries("Absent");
+        TimeSeries late = new TimeSeries("Late");
 
         try {
-            LocalDate startDate = LocalDate.parse(startDateField.getText());
-            LocalDate endDate = LocalDate.parse(endDateField.getText());
+            LocalDate start = LocalDate.parse(startDateField.getText());
+            LocalDate end = LocalDate.parse(endDateField.getText());
+            LocalDate current = start;
 
-            // Create time series chart for attendance trends
-            TimeSeries presentSeries = new TimeSeries("Present");
-            TimeSeries absentSeries = new TimeSeries("Absent");
-            TimeSeries lateSeries = new TimeSeries("Late");
-
-            LocalDate currentDate = startDate;
-            while (!currentDate.isAfter(endDate)) {
-                int presentCount = attendanceDAO.getAttendanceCountByStatus("PRESENT", currentDate, currentDate);
-                int absentCount = attendanceDAO.getAttendanceCountByStatus("ABSENT", currentDate, currentDate);
-                int lateCount = attendanceDAO.getAttendanceCountByStatus("LATE", currentDate, currentDate);
-
-                presentSeries.add(new Day(java.sql.Date.valueOf(currentDate)), presentCount);
-                absentSeries.add(new Day(java.sql.Date.valueOf(currentDate)), absentCount);
-                lateSeries.add(new Day(java.sql.Date.valueOf(currentDate)), lateCount);
-
-                currentDate = currentDate.plusDays(1);
+            while (!current.isAfter(end)) {
+                present.add(new Day(java.sql.Date.valueOf(current)), attendanceDAO.getAttendanceCountByStatus("PRESENT", current, current));
+                absent.add(new Day(java.sql.Date.valueOf(current)), attendanceDAO.getAttendanceCountByStatus("ABSENT", current, current));
+                late.add(new Day(java.sql.Date.valueOf(current)), attendanceDAO.getAttendanceCountByStatus("LATE", current, current));
+                current = current.plusDays(1);
             }
+        } catch (Exception ignored) {}
 
-            TimeSeriesCollection dataset = new TimeSeriesCollection();
-            dataset.addSeries(presentSeries);
-            dataset.addSeries(absentSeries);
-            dataset.addSeries(lateSeries);
+        TimeSeriesCollection dataset = new TimeSeriesCollection();
+        dataset.addSeries(present);
+        dataset.addSeries(absent);
+        dataset.addSeries(late);
 
-            JFreeChart chart = ChartFactory.createTimeSeriesChart(
-                    "Attendance Trends",
-                    "Date",
-                    "Count",
-                    dataset,
-                    true,
-                    true,
-                    false
-            );
+        JFreeChart chart = ChartFactory.createTimeSeriesChart("Attendance Trends", "Date", "Count", dataset, true, true, false);
+        XYPlot plot = chart.getXYPlot();
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setDomainGridlinePaint(new Color(230, 230, 230));
+        plot.setRangeGridlinePaint(new Color(230, 230, 230));
 
-            XYPlot plot = chart.getXYPlot();
-            plot.setBackgroundPaint(Color.WHITE);
-            XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-            renderer.setSeriesShapesVisible(0, true);
-            renderer.setSeriesShapesVisible(1, true);
-            renderer.setSeriesShapesVisible(2, true);
-            plot.setRenderer(renderer);
+        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        renderer.setSeriesPaint(0, new Color(56, 102, 255));
+        renderer.setSeriesPaint(1, new Color(255, 99, 132));
+        renderer.setSeriesPaint(2, new Color(255, 193, 7));
+        renderer.setSeriesShapesVisible(0, true);
+        renderer.setSeriesShapesVisible(1, true);
+        renderer.setSeriesShapesVisible(2, true);
+        plot.setRenderer(renderer);
 
-            panel.add(new ChartPanel(chart), BorderLayout.CENTER);
-        } catch (Exception e) {
-            panel.add(new JLabel("Invalid date format. Please use YYYY-MM-DD format.", JLabel.CENTER), BorderLayout.CENTER);
-        }
-
-        return panel;
+        chart.setBackgroundPaint(Color.WHITE);
+        return new ChartPanel(chart);
     }
 
-    private JPanel createSalaryReportsPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-
-        // Create bar chart for average salary by department
+    private ChartPanel createSalaryChart() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        List<Department> departments = departmentDAO.getAllDepartments();
+        List<Employee> employees = employeeDAO.getAllEmployees();
 
-        for (Department dept : departments) {
-            List<Employee> employees = employeeDAO.getAllEmployees();
-            double avgSalary = employees.stream()
+        for (Department dept : departmentDAO.getAllDepartments()) {
+            double avg = employees.stream()
                     .filter(e -> e.getDepartmentId() == dept.getDepartmentId())
                     .mapToDouble(Employee::getSalary)
-                    .average()
-                    .orElse(0);
-
-            if (avgSalary > 0) {
-                dataset.addValue(avgSalary, "Average Salary", dept.getName());
-            }
+                    .average().orElse(0);
+            dataset.addValue(avg, "Average Salary", dept.getName());
         }
 
-        JFreeChart chart = ChartFactory.createBarChart(
-                "Average Salary by Department",
-                "Department",
-                "Average Salary ($)",
-                dataset,
-                PlotOrientation.VERTICAL,
-                true,
-                true,
-                false
-        );
+        JFreeChart chart = ChartFactory.createBarChart("Average Salary by Department", "Department", "Salary ($)", dataset);
+        CategoryPlot plot = chart.getCategoryPlot();
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setRangeGridlinePaint(new Color(230, 230, 230));
 
+        BarRenderer renderer = (BarRenderer) plot.getRenderer();
+        renderer.setSeriesPaint(0, new Color(102, 187, 255));
+        renderer.setBarPainter(new StandardBarPainter());
         chart.setBackgroundPaint(Color.WHITE);
-
-        panel.add(new ChartPanel(chart), BorderLayout.CENTER);
-        return panel;
+        return new ChartPanel(chart);
     }
 
-    private JPanel createPerformanceMetricsPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
+    private JScrollPane createPerformanceTable() {
+        String[] cols = {"Metric", "Value", "Details"};
+        DefaultTableModel model = new DefaultTableModel(cols, 0);
+        JTable table = new JTable(model);
+        table.setFont(new Font("Poppins", Font.PLAIN, 13));
+        table.getTableHeader().setFont(new Font("Poppins SemiBold", Font.BOLD, 14));
+        table.setRowHeight(30);
+        table.setBackground(Color.WHITE);
+        table.setShowGrid(false);
+        table.setIntercellSpacing(new Dimension(0, 8));
 
-        // Create table with detailed statistics
-        String[] columns = {"Metric", "Value", "Details"};
-        DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
-        JTable table = new JTable(tableModel);
+        List<Employee> employees = employeeDAO.getAllEmployees();
+        List<Department> departments = departmentDAO.getAllDepartments();
 
-        try {
-            LocalDate startDate = LocalDate.parse(startDateField.getText());
-            LocalDate endDate = LocalDate.parse(endDateField.getText());
+        model.addRow(new Object[]{"👥 Total Employees", employees.size(), "All Departments"});
+        long active = employees.stream().filter(e -> "ACTIVE".equalsIgnoreCase(e.getStatus())).count();
+        model.addRow(new Object[]{"✅ Active Employees", active, "Currently Working"});
+        double avgSalary = employees.stream().mapToDouble(Employee::getSalary).average().orElse(0);
+        model.addRow(new Object[]{"💰 Average Salary", "$" + String.format("%.2f", avgSalary), "All Employees"});
 
-            // Add statistics
-            List<Employee> employees = employeeDAO.getAllEmployees();
-            List<Department> departments = departmentDAO.getAllDepartments();
+        model.addRow(new Object[]{"🏢 Departments", departments.size(), "Registered in System"});
+        model.addRow(new Object[]{"📈 Best Performing Employees", "Top Attendance ≥90%", ""});
 
-            tableModel.addRow(new Object[]{"Total Employees", employees.size(), "All departments"});
-
-            long activeEmployees = employees.stream().filter(e -> "ACTIVE".equals(e.getStatus())).count();
-            tableModel.addRow(new Object[]{"Active Employees", activeEmployees, "Currently employed"});
-
-            double avgSalary = employees.stream().mapToDouble(Employee::getSalary).average().orElse(0);
-            tableModel.addRow(new Object[]{"Average Salary", String.format("$%.2f", avgSalary), "Across all employees"});
-
-            // Attendance statistics
-            int totalPresent = attendanceDAO.getAttendanceCountByStatus("PRESENT", startDate, endDate);
-            int totalAbsent = attendanceDAO.getAttendanceCountByStatus("ABSENT", startDate, endDate);
-            int totalLate = attendanceDAO.getAttendanceCountByStatus("LATE", startDate, endDate);
-
-            tableModel.addRow(new Object[]{"Total Present (Period)", totalPresent, startDate + " to " + endDate});
-            tableModel.addRow(new Object[]{"Total Absent (Period)", totalAbsent, startDate + " to " + endDate});
-            tableModel.addRow(new Object[]{"Total Late (Period)", totalLate, startDate + " to " + endDate});
-
-            // Department-wise details
-            for (Department dept : departments) {
-                int count = departmentDAO.getEmployeeCountByDepartment(dept.getDepartmentId());
-                tableModel.addRow(new Object[]{dept.getName() + " Employees", count, dept.getDescription()});
+        for (Employee emp : employees) {
+            double percent = attendanceDAO.getAttendancePercentage(emp.getEmployeeId(), LocalDate.now().minusDays(30), LocalDate.now());
+            if (percent >= 90) {
+                model.addRow(new Object[]{"⭐ " + emp.getFullName(), String.format("%.1f%%", percent), emp.getPosition()});
             }
-
-            // Top performers (employees with best attendance)
-            tableModel.addRow(new Object[]{"", "", ""});
-            tableModel.addRow(new Object[]{"Top Performers", "", "Best Attendance (%)"});
-
-            for (Employee emp : employees) {
-                double attendancePercent = attendanceDAO.getAttendancePercentage(emp.getEmployeeId(), startDate, endDate);
-                if (attendancePercent >= 90) {
-                    tableModel.addRow(new Object[]{emp.getFullName(),
-                            String.format("%.1f%%", attendancePercent),
-                            emp.getPosition()});
-                }
-            }
-
-        } catch (Exception e) {
-            tableModel.addRow(new Object[]{"Error", "Invalid date format", "Please use YYYY-MM-DD format"});
         }
 
-        panel.add(new JScrollPane(table), BorderLayout.CENTER);
-        return panel;
+        JScrollPane scroll = new JScrollPane(table);
+        scroll.getViewport().setBackground(Color.WHITE);
+        scroll.setBorder(new LineBorder(new Color(230, 230, 230), 1, true));
+        return scroll;
     }
 
-    private void generateAllReports() {
-        // Refresh all report panels
-        reportTabs.removeAll();
+    private void exportCSV(ActionEvent e) {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Export Report as CSV");
+        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("CSV Files", "csv"));
 
-        reportTabs.addTab("Employee Statistics", createEmployeeStatsPanel());
-        reportTabs.addTab("Department Analysis", createDepartmentAnalysisPanel());
-        reportTabs.addTab("Attendance Trends", createAttendanceTrendsPanel());
-        reportTabs.addTab("Salary Reports", createSalaryReportsPanel());
-        reportTabs.addTab("Performance Metrics", createPerformanceMetricsPanel());
-
-        reportTabs.revalidate();
-        reportTabs.repaint();
-
-        JOptionPane.showMessageDialog(this, "Reports generated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private void exportToCSV() {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("CSV files", "csv"));
-
-        int result = fileChooser.showSaveDialog(this);
+        int result = chooser.showSaveDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
-            String filePath = fileChooser.getSelectedFile().getAbsolutePath();
-            if (!filePath.endsWith(".csv")) {
-                filePath += ".csv";
-            }
+            String path = chooser.getSelectedFile().getAbsolutePath();
+            if (!path.endsWith(".csv")) path += ".csv";
 
-            try (java.io.PrintWriter writer = new java.io.PrintWriter(filePath)) {
-                writer.println("Employee Management System Report");
-                writer.println("Generated on: " + new java.util.Date());
-                writer.println("Period: " + startDateField.getText() + " to " + endDateField.getText());
+            try (PrintWriter writer = new PrintWriter(path)) {
+                writer.println("Employee Management System - Reports Export");
+                writer.println("Generated: " + LocalDate.now());
                 writer.println();
 
-                // Export employee statistics
-                writer.println("EMPLOYEE STATISTICS");
-                writer.println("==================");
                 List<Employee> employees = employeeDAO.getAllEmployees();
-                writer.println("Total Employees: " + employees.size());
-                writer.println("Active Employees: " + employees.stream().filter(e -> "ACTIVE".equals(e.getStatus())).count());
-                writer.println();
-
-                // Export department statistics
-                writer.println("DEPARTMENT STATISTICS");
-                writer.println("=====================");
                 List<Department> departments = departmentDAO.getAllDepartments();
-                for (Department dept : departments) {
-                    int count = departmentDAO.getEmployeeCountByDepartment(dept.getDepartmentId());
-                    writer.println(dept.getName() + ": " + count + " employees");
+
+                writer.println("EMPLOYEE SUMMARY");
+                writer.println("Total Employees," + employees.size());
+                writer.println("Active Employees," + employees.stream().filter(e1 -> "ACTIVE".equalsIgnoreCase(e1.getStatus())).count());
+                writer.println();
+
+                writer.println("DEPARTMENT SUMMARY");
+                for (Department d : departments) {
+                    int count = departmentDAO.getEmployeeCountByDepartment(d.getDepartmentId());
+                    writer.println(d.getName() + "," + count);
                 }
                 writer.println();
 
-                // Export attendance statistics
-                try {
-                    LocalDate startDate = LocalDate.parse(startDateField.getText());
-                    LocalDate endDate = LocalDate.parse(endDateField.getText());
-
-                    writer.println("ATTENDANCE STATISTICS");
-                    writer.println("======================");
-                    writer.println("Present: " + attendanceDAO.getAttendanceCountByStatus("PRESENT", startDate, endDate));
-                    writer.println("Absent: " + attendanceDAO.getAttendanceCountByStatus("ABSENT", startDate, endDate));
-                    writer.println("Late: " + attendanceDAO.getAttendanceCountByStatus("LATE", startDate, endDate));
-                } catch (Exception e) {
-                    writer.println("Invalid date range for attendance statistics");
+                writer.println("AVERAGE SALARY BY DEPARTMENT");
+                for (Department d : departments) {
+                    double avg = employees.stream()
+                            .filter(emp -> emp.getDepartmentId() == d.getDepartmentId())
+                            .mapToDouble(Employee::getSalary)
+                            .average()
+                            .orElse(0);
+                    writer.println(d.getName() + "," + String.format("%.2f", avg));
                 }
 
-                JOptionPane.showMessageDialog(this, "Report exported successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
-            } catch (Exception e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Failed to export report", "Error", JOptionPane.ERROR_MESSAGE);
+                writer.flush();
+                JOptionPane.showMessageDialog(this, "✅ Exported successfully to:\n" + path,
+                        "Export Complete", JOptionPane.INFORMATION_MESSAGE);
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "❌ Export failed: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
-    }
-
-    private void exportToPDF() {
-        // This is a placeholder for PDF export
-        // You would need to add a PDF library like iText or Apache PDFBox
-        JOptionPane.showMessageDialog(this,
-                "PDF export functionality requires additional libraries.\n" +
-                        "Please add iText or Apache PDFBox to your project dependencies.",
-                "PDF Export",
-                JOptionPane.INFORMATION_MESSAGE);
     }
 }

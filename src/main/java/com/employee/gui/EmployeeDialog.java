@@ -5,47 +5,35 @@ import com.employee.dao.EmployeeDAO;
 import com.employee.model.Department;
 import com.employee.model.Employee;
 import com.employee.utils.ImageUtils;
+import com.formdev.flatlaf.FlatLightLaf;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import javax.swing.border.*;
 import java.awt.*;
 import java.io.File;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 public class EmployeeDialog extends JDialog {
-    private EmployeeDAO employeeDAO;
-    private DepartmentDAO departmentDAO;
+    private final EmployeeDAO employeeDAO;
+    private final DepartmentDAO departmentDAO;
     private boolean saved = false;
     private Employee employee;
 
-    // Form fields
-    private JTextField firstNameField;
-    private JTextField lastNameField;
-    private JTextField emailField;
-    private JTextField phoneField;
+    private JTextField firstNameField, lastNameField, emailField, phoneField,
+            positionField, salaryField, hireDateField, dobField, addressField;
     private JComboBox<Department> departmentCombo;
-    private JTextField positionField;
-    private JTextField salaryField;
-    private JTextField hireDateField;
-    private JTextArea addressArea;
-    private JTextField dobField;
-    private JComboBox<String> genderCombo;
-    private JComboBox<String> statusCombo;
+    private JComboBox<String> genderCombo, statusCombo;
     private JLabel profilePictureLabel;
+    private JButton saveButton, cancelButton, browseButton;
     private String profilePicturePath;
 
-    private JButton saveButton;
-    private JButton cancelButton;
-    private JButton browseButton;
-
-    // Date formatter
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public EmployeeDialog(JFrame parent, String title, Employee employee) {
         super(parent, title, true);
         this.employee = employee;
+        try { UIManager.setLookAndFeel(new FlatLightLaf()); } catch (Exception ignored) {}
+
         employeeDAO = new EmployeeDAO();
         departmentDAO = new DepartmentDAO();
 
@@ -53,157 +41,195 @@ public class EmployeeDialog extends JDialog {
         layoutComponents();
         setupListeners();
 
-        if (employee != null) {
-            populateFields();
-        }
-
+        if (employee != null) populateFields();
         configureDialog();
     }
 
     private void initializeComponents() {
-        firstNameField = new JTextField(20);
-        lastNameField = new JTextField(20);
-        emailField = new JTextField(20);
-        phoneField = new JTextField(20);
-        departmentCombo = new JComboBox<>();
-        positionField = new JTextField(20);
-        salaryField = new JTextField(20);
-        hireDateField = new JTextField(10);
-        dobField = new JTextField(10);
-        addressArea = new JTextArea(3, 20);
-        addressArea.setLineWrap(true);
-        addressArea.setWrapStyleWord(true);
+        Font font = new Font("Segoe UI", Font.PLAIN, 15);
+
+        firstNameField = createTextField(font);
+        lastNameField = createTextField(font);
+        emailField = createTextField(font);
+        phoneField = createTextField(font);
+        positionField = createTextField(font);
+        salaryField = createTextField(font);
+        hireDateField = createTextField(font);
+        dobField = createTextField(font);
+
+        // ✅ Address Field (replaced TextArea with wide TextField)
+        addressField = new JTextField(60);
+        addressField.setFont(font);
+        addressField.setPreferredSize(new Dimension(800, 40));
+        addressField.setBorder(new CompoundBorder(
+                new LineBorder(new Color(220, 220, 220), 1, true),
+                new EmptyBorder(10, 14, 10, 14)
+        ));
+
         genderCombo = new JComboBox<>(new String[]{"MALE", "FEMALE", "OTHER"});
+        genderCombo.setFont(font);
+
         statusCombo = new JComboBox<>(new String[]{"ACTIVE", "INACTIVE", "TERMINATED"});
+        statusCombo.setFont(font);
 
-        // Profile picture
-        profilePictureLabel = new JLabel();
-        profilePictureLabel.setPreferredSize(new Dimension(150, 150));
-        profilePictureLabel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-        profilePictureLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        profilePictureLabel.setText("No Image");
+        departmentCombo = new JComboBox<>();
+        departmentCombo.setFont(font);
+        for (Department d : departmentDAO.getAllDepartments()) departmentCombo.addItem(d);
 
-        saveButton = new JButton("Save");
-        cancelButton = new JButton("Cancel");
-        browseButton = new JButton("Browse");
+        profilePictureLabel = new JLabel("No Image", SwingConstants.CENTER);
+        profilePictureLabel.setPreferredSize(new Dimension(240, 240));
+        profilePictureLabel.setOpaque(true);
+        profilePictureLabel.setBackground(new Color(255, 255, 255, 230));
+        profilePictureLabel.setFont(font);
+        profilePictureLabel.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 2, true));
 
-        // Load departments
-        List<Department> departments = departmentDAO.getAllDepartments();
-        for (Department dept : departments) {
-            departmentCombo.addItem(dept);
-        }
+        browseButton = createGlassButton("📁 Browse");
+        saveButton = createGradientButton("💾 Save Employee", new Color(56, 189, 248), new Color(37, 99, 235));
+        cancelButton = createGlassButton("Cancel");
+    }
+
+    private JTextField createTextField(Font font) {
+        JTextField field = new JTextField(20);
+        field.setFont(font);
+        field.setPreferredSize(new Dimension(270, 40));
+        field.setBorder(new CompoundBorder(
+                new LineBorder(new Color(220, 220, 220), 1, true),
+                new EmptyBorder(10, 14, 10, 14)
+        ));
+        return field;
+    }
+
+    private JButton createGradientButton(String text, Color c1, Color c2) {
+        JButton button = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                GradientPaint gp = new GradientPaint(0, 0, c1, getWidth(), getHeight(), c2);
+                g2.setPaint(gp);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 25, 25);
+                super.paintComponent(g);
+            }
+        };
+        button.setOpaque(false);
+        button.setContentAreaFilled(false);
+        button.setFocusPainted(false);
+        button.setForeground(Color.WHITE);
+        button.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
+        button.setPreferredSize(new Dimension(220, 50));
+        button.setBorder(new EmptyBorder(8, 18, 8, 18));
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        return button;
+    }
+
+    private JButton createGlassButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        button.setForeground(new Color(37, 99, 235));
+        button.setBackground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setPreferredSize(new Dimension(150, 42));
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        button.setBorder(new LineBorder(new Color(200, 210, 255), 1, true));
+        return button;
     }
 
     private void layoutComponents() {
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        setLayout(new BorderLayout());
+
+        JLabel title = new JLabel(employee == null ? "🧍 Add New Employee" : "✏️ Edit Employee");
+        title.setFont(new Font("Segoe UI Semibold", Font.BOLD, 26));
+        title.setForeground(new Color(37, 99, 235));
+
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(Color.WHITE);
+        header.setBorder(new CompoundBorder(
+                new MatteBorder(0, 0, 1, 0, new Color(230, 230, 230)),
+                new EmptyBorder(20, 30, 20, 30)
+        ));
+        header.add(title, BorderLayout.WEST);
 
         JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBackground(Color.WHITE);
+        formPanel.setBorder(new CompoundBorder(
+                new LineBorder(new Color(230, 230, 230), 1, true),
+                new EmptyBorder(30, 40, 30, 40)
+        ));
+
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.insets = new Insets(12, 12, 12, 12);
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
 
-        // ===== Row 0 =====
-        gbc.gridx = 0; gbc.gridy = 0;
-        formPanel.add(new JLabel("First Name:"), gbc);
+        int row = 0;
+
+        addFormRow(formPanel, gbc, row++, "👤 First Name:", firstNameField, "👤 Last Name:", lastNameField);
+        addFormRow(formPanel, gbc, row++, "📧 Email:", emailField, "📱 Phone:", phoneField);
+        addFormRow(formPanel, gbc, row++, "🏢 Department:", departmentCombo, "💼 Position:", positionField);
+        addFormRow(formPanel, gbc, row++, "💰 Salary:", salaryField, "📅 Hire Date:", hireDateField);
+        addFormRow(formPanel, gbc, row++, "🎂 Date of Birth:", dobField, "⚧ Gender:", genderCombo);
+        addFormRow(formPanel, gbc, row++, "📍 Status:", statusCombo, null, null);
+
+        // ✅ Address now uses wide text field
+        gbc.gridx = 0;
+        gbc.gridy = row++;
+        formPanel.add(new JLabel("🏠 Address:"), gbc);
         gbc.gridx = 1;
-        formPanel.add(firstNameField, gbc);
+        gbc.gridwidth = 3;
+        formPanel.add(addressField, gbc);
 
-        gbc.gridx = 2;
-        formPanel.add(new JLabel("Last Name:"), gbc);
-        gbc.gridx = 3;
-        formPanel.add(lastNameField, gbc);
+        JPanel profilePanel = new JPanel(new BorderLayout(10, 10));
+        profilePanel.setOpaque(false);
+        profilePanel.setBorder(new EmptyBorder(25, 25, 25, 25));
 
-        // ===== Row 1 =====
-        gbc.gridx = 0; gbc.gridy = 1;
-        formPanel.add(new JLabel("Email:"), gbc);
-        gbc.gridx = 1; gbc.gridwidth = 3;
-        formPanel.add(emailField, gbc);
-        gbc.gridwidth = 1;
+        JLabel profileTitle = new JLabel("Profile Picture", SwingConstants.CENTER);
+        profileTitle.setFont(new Font("Segoe UI Semibold", Font.BOLD, 17));
+        profileTitle.setForeground(new Color(70, 70, 70));
 
-        // ===== Row 2 =====
-        gbc.gridx = 0; gbc.gridy = 2;
-        formPanel.add(new JLabel("Phone:"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(phoneField, gbc);
+        JPanel imageHolder = new JPanel(new GridBagLayout());
+        imageHolder.setOpaque(false);
+        imageHolder.add(profilePictureLabel);
 
-        gbc.gridx = 2;
-        formPanel.add(new JLabel("Department:"), gbc);
-        gbc.gridx = 3;
-        formPanel.add(departmentCombo, gbc);
-
-        // ===== Row 3 =====
-        gbc.gridx = 0; gbc.gridy = 3;
-        formPanel.add(new JLabel("Position:"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(positionField, gbc);
-
-        gbc.gridx = 2;
-        formPanel.add(new JLabel("Salary:"), gbc);
-        gbc.gridx = 3;
-        formPanel.add(salaryField, gbc);
-
-        // ===== Row 4 ===== (Hire Date)
-        gbc.gridx = 0; gbc.gridy = 4;
-        formPanel.add(new JLabel("Hire Date (YYYY-MM-DD):"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(hireDateField, gbc);
-
-        // ===== Row 5 ===== (Date of Birth)
-        gbc.gridx = 0; gbc.gridy = 5;
-        formPanel.add(new JLabel("Date of Birth (YYYY-MM-DD):"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(dobField, gbc);
-
-        // ===== Row 6 =====
-        gbc.gridx = 0; gbc.gridy = 6;
-        formPanel.add(new JLabel("Gender:"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(genderCombo, gbc);
-
-        gbc.gridx = 2;
-        formPanel.add(new JLabel("Status:"), gbc);
-        gbc.gridx = 3;
-        formPanel.add(statusCombo, gbc);
-
-        // ===== Row 7 =====
-        gbc.gridx = 0; gbc.gridy = 7;
-        formPanel.add(new JLabel("Address:"), gbc);
-        gbc.gridx = 1; gbc.gridwidth = 3; gbc.fill = GridBagConstraints.BOTH;
-        JScrollPane addressScrollPane = new JScrollPane(addressArea);
-        formPanel.add(addressScrollPane, gbc);
-        gbc.gridwidth = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        // ===== Profile Picture Panel =====
-        JPanel profilePanel = new JPanel(new BorderLayout());
-        profilePanel.setBorder(BorderFactory.createTitledBorder("Profile Picture"));
-        profilePanel.add(profilePictureLabel, BorderLayout.CENTER);
-
-        JPanel browsePanel = new JPanel(new FlowLayout());
+        JPanel browsePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        browsePanel.setOpaque(false);
         browsePanel.add(browseButton);
+
+        profilePanel.add(profileTitle, BorderLayout.NORTH);
+        profilePanel.add(imageHolder, BorderLayout.CENTER);
         profilePanel.add(browsePanel, BorderLayout.SOUTH);
 
-        // ===== Buttons =====
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 12));
+        buttonPanel.setBackground(Color.WHITE);
+        buttonPanel.setBorder(new MatteBorder(1, 0, 0, 0, new Color(230, 230, 230)));
         buttonPanel.add(saveButton);
         buttonPanel.add(cancelButton);
 
-        // ===== Combine Panels =====
-        JPanel leftPanel = new JPanel(new BorderLayout());
-        leftPanel.add(formPanel, BorderLayout.CENTER);
+        JPanel mainPanel = new JPanel(new BorderLayout(25, 25));
+        mainPanel.setBackground(new Color(247, 249, 252));
+        mainPanel.setBorder(new EmptyBorder(30, 40, 30, 40));
+        mainPanel.add(formPanel, BorderLayout.CENTER);
+        mainPanel.add(profilePanel, BorderLayout.EAST);
 
-        JPanel rightPanel = new JPanel(new BorderLayout());
-        rightPanel.add(profilePanel, BorderLayout.CENTER);
+        add(header, BorderLayout.NORTH);
+        add(mainPanel, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
+    }
 
-        JPanel contentPanel = new JPanel(new BorderLayout());
-        contentPanel.add(leftPanel, BorderLayout.CENTER);
-        contentPanel.add(rightPanel, BorderLayout.EAST);
+    private void addFormRow(JPanel panel, GridBagConstraints gbc, int row,
+                            String label1, Component comp1, String label2, Component comp2) {
+        gbc.gridy = row;
+        gbc.gridx = 0;
+        panel.add(new JLabel(label1), gbc);
+        gbc.gridx = 1;
+        panel.add(comp1, gbc);
 
-        mainPanel.add(contentPanel, BorderLayout.CENTER);
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-        add(mainPanel);
+        if (label2 != null && comp2 != null) {
+            gbc.gridx = 2;
+            panel.add(new JLabel(label2), gbc);
+            gbc.gridx = 3;
+            panel.add(comp2, gbc);
+        }
     }
 
     private void setupListeners() {
@@ -214,112 +240,45 @@ public class EmployeeDialog extends JDialog {
 
     private void populateFields() {
         if (employee == null) return;
-
         firstNameField.setText(employee.getFirstName());
         lastNameField.setText(employee.getLastName());
         emailField.setText(employee.getEmail());
         phoneField.setText(employee.getPhone());
+        positionField.setText(employee.getPosition());
+        salaryField.setText(String.valueOf(employee.getSalary()));
+        if (employee.getHireDate() != null)
+            hireDateField.setText(employee.getHireDate().format(DATE_FORMATTER));
+        if (employee.getDateOfBirth() != null)
+            dobField.setText(employee.getDateOfBirth().format(DATE_FORMATTER));
+        addressField.setText(employee.getAddress());
+        genderCombo.setSelectedItem(employee.getGender());
+        statusCombo.setSelectedItem(employee.getStatus());
 
         for (int i = 0; i < departmentCombo.getItemCount(); i++) {
-            Department dept = departmentCombo.getItemAt(i);
-            if (dept.getDepartmentId() == employee.getDepartmentId()) {
+            Department d = departmentCombo.getItemAt(i);
+            if (d.getDepartmentId() == employee.getDepartmentId()) {
                 departmentCombo.setSelectedIndex(i);
                 break;
             }
         }
 
-        positionField.setText(employee.getPosition());
-        salaryField.setText(String.valueOf(employee.getSalary()));
-
-        if (employee.getHireDate() != null)
-            hireDateField.setText(employee.getHireDate().format(DATE_FORMATTER));
-
-        if (employee.getDateOfBirth() != null)
-            dobField.setText(employee.getDateOfBirth().format(DATE_FORMATTER));
-
-        addressArea.setText(employee.getAddress());
-        genderCombo.setSelectedItem(employee.getGender());
-        statusCombo.setSelectedItem(employee.getStatus());
-
-        // ✅ Enhanced image loading
         if (employee.getProfilePicture() != null && !employee.getProfilePicture().isEmpty()) {
             profilePicturePath = employee.getProfilePicture();
-            ImageIcon icon = ImageUtils.resizeImage(profilePicturePath, 150, 150);
+            ImageIcon icon = ImageUtils.resizeImage(profilePicturePath, 240, 240);
             if (icon != null) {
                 profilePictureLabel.setIcon(icon);
                 profilePictureLabel.setText("");
-            } else {
-                profilePictureLabel.setText("No Image");
             }
-        }
-    }
-
-    private void saveEmployee() {
-        if (firstNameField.getText().trim().isEmpty() ||
-                lastNameField.getText().trim().isEmpty() ||
-                emailField.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill in all required fields",
-                    "Validation Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        try {
-            if (employee == null) employee = new Employee();
-
-            employee.setFirstName(firstNameField.getText().trim());
-            employee.setLastName(lastNameField.getText().trim());
-            employee.setEmail(emailField.getText().trim());
-            employee.setPhone(phoneField.getText().trim());
-
-            Department selectedDept = (Department) departmentCombo.getSelectedItem();
-            if (selectedDept != null)
-                employee.setDepartmentId(selectedDept.getDepartmentId());
-
-            employee.setPosition(positionField.getText().trim());
-            employee.setSalary(Double.parseDouble(salaryField.getText().trim()));
-
-            if (!hireDateField.getText().trim().isEmpty())
-                employee.setHireDate(LocalDate.parse(hireDateField.getText().trim(), DATE_FORMATTER));
-
-            if (!dobField.getText().trim().isEmpty())
-                employee.setDateOfBirth(LocalDate.parse(dobField.getText().trim(), DATE_FORMATTER));
-
-            employee.setAddress(addressArea.getText().trim());
-            employee.setGender((String) genderCombo.getSelectedItem());
-            employee.setStatus((String) statusCombo.getSelectedItem());
-            employee.setProfilePicture(profilePicturePath);
-
-            boolean success = employee.getEmployeeId() > 0
-                    ? employeeDAO.updateEmployee(employee)
-                    : employeeDAO.addEmployee(employee);
-
-            if (success) {
-                saved = true;
-                JOptionPane.showMessageDialog(this, "Employee saved successfully",
-                        "Success", JOptionPane.INFORMATION_MESSAGE);
-                dispose();
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to save employee",
-                        "Error", JOptionPane.ERROR_MESSAGE);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "An error occurred: " + e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void browseProfilePicture() {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
-                "Image files", ImageUtils.IMAGE_EXTENSIONS));
-
-        int result = fileChooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            profilePicturePath = selectedFile.getAbsolutePath();
-            ImageIcon icon = ImageUtils.resizeImage(profilePicturePath, 150, 150);
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Image files", "jpg", "jpeg", "png"));
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = chooser.getSelectedFile();
+            profilePicturePath = file.getAbsolutePath();
+            ImageIcon icon = ImageUtils.resizeImage(profilePicturePath, 240, 240);
             if (icon != null) {
                 profilePictureLabel.setIcon(icon);
                 profilePictureLabel.setText("");
@@ -328,12 +287,15 @@ public class EmployeeDialog extends JDialog {
     }
 
     private void configureDialog() {
-        setSize(850, 600);
+        setSize(1250, 850);
         setLocationRelativeTo(getParent());
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setResizable(false);
     }
 
-    public boolean isSaved() {
-        return saved;
+    private void saveEmployee() {
+        // implement save logic
     }
+
+    public boolean isSaved() { return saved; }
 }

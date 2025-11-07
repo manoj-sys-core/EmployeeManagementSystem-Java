@@ -85,4 +85,11 @@ public class Employee {
     public String getFullName() {
         return firstName + " " + lastName;
     }
+
+    // ✅ Add this method to fix combo box display
+    @Override
+    public String toString() {
+        // You can customize the format as you prefer
+        return employeeId + " - " + getFullName() + " (" + position + ")";
+    }
 }

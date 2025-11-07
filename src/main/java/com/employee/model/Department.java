@@ -34,4 +34,15 @@ public class Department {
 
     public LocalDate getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDate createdAt) { this.createdAt = createdAt; }
+
+    // ✅ Add this to make it display nicely in JComboBox or JTable
+    @Override
+    public String toString() {
+        // Example: "HR - Human Resources"
+        if (description != null && !description.isEmpty()) {
+            return departmentId + " - " + name + " (" + description + ")";
+        } else {
+            return departmentId + " - " + name;
+        }
+    }
 }

@@ -4,44 +4,41 @@ import com.employee.dao.AttendanceDAO;
 import com.employee.dao.EmployeeDAO;
 import com.employee.model.Attendance;
 import com.employee.model.Employee;
+import com.formdev.flatlaf.FlatLightLaf;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.border.*;
+import javax.swing.table.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Vector;
 
 public class AttendancePanel extends JPanel {
-    private AttendanceDAO attendanceDAO;
-    private EmployeeDAO employeeDAO;
+    private final AttendanceDAO attendanceDAO;
+    private final EmployeeDAO employeeDAO;
     private JTable attendanceTable;
     private DefaultTableModel tableModel;
     private JComboBox<Employee> employeeCombo;
-    private JTextField dateField;
-    private JTextField checkInField;
-    private JTextField checkOutField;
-    private JComboBox<String> statusCombo;
-    private JTextField notesField;
-    private JButton markButton;
-    private JButton checkInButton;
-    private JButton checkOutButton;
-    private JButton updateButton;
-    private JButton deleteButton;
-    private JButton refreshButton;
-    private JButton exportButton;
+    private JTextField dateField, checkInField, checkOutField, notesField, searchField;
+    private JComboBox<String> statusCombo, filterStatusCombo;
+    private JButton markButton, checkInButton, checkOutButton, updateButton, deleteButton, refreshButton, exportButton;
     private JLabel statusLabel;
-    private JTextField searchField;
-    private JComboBox<String> filterStatusCombo;
 
     public AttendancePanel() {
+        try {
+            UIManager.setLookAndFeel(new FlatLightLaf());
+        } catch (Exception ignored) {}
+
         attendanceDAO = new AttendanceDAO();
         employeeDAO = new EmployeeDAO();
+
+        setLayout(new BorderLayout(15, 15));
+        setBackground(new Color(247, 249, 252));
+        setBorder(new EmptyBorder(20, 25, 20, 25));
+
         initializeComponents();
         layoutComponents();
         setupListeners();
@@ -49,485 +46,360 @@ public class AttendancePanel extends JPanel {
     }
 
     private void initializeComponents() {
-        // Table
+        Font font = new Font("Poppins", Font.PLAIN, 14);
+
         String[] columns = {"ID", "Employee", "Date", "Check In", "Check Out", "Status", "Notes"};
         tableModel = new DefaultTableModel(columns, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            public boolean isCellEditable(int r, int c) { return false; }
         };
-        attendanceTable = new JTable(tableModel);
-        attendanceTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        attendanceTable.getTableHeader().setReorderingAllowed(false);
 
-        // Form components
+        attendanceTable = new JTable(tableModel);
+        attendanceTable.setFont(font);
+        attendanceTable.setRowHeight(30);
+        attendanceTable.setGridColor(new Color(230, 230, 230));
+        attendanceTable.setShowVerticalLines(false);
+        attendanceTable.setSelectionBackground(new Color(33, 150, 243, 40));
+        attendanceTable.setSelectionForeground(Color.BLACK);
+        attendanceTable.getTableHeader().setFont(new Font("Poppins SemiBold", Font.BOLD, 14));
+
+        attendanceTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                                                           boolean hasFocus, int row, int col) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+                if (!isSelected) c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 247, 250));
+                return c;
+            }
+        });
+
         employeeCombo = new JComboBox<>();
         loadEmployees();
-
-        dateField = new JTextField(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), 10);
+        dateField = new JTextField(LocalDate.now().toString(), 12);
         checkInField = new JTextField(8);
         checkOutField = new JTextField(8);
-        statusCombo = new JComboBox<>(new String[]{"PRESENT", "ABSENT", "LATE", "HALF_DAY"});
         notesField = new JTextField(20);
-
-        // Search and filter
         searchField = new JTextField(15);
+        statusCombo = new JComboBox<>(new String[]{"PRESENT", "ABSENT", "LATE", "HALF_DAY"});
         filterStatusCombo = new JComboBox<>(new String[]{"All", "PRESENT", "ABSENT", "LATE", "HALF_DAY"});
 
-        // Buttons
-        markButton = new JButton("Mark Attendance");
-        checkInButton = new JButton("Check In");
-        checkOutButton = new JButton("Check Out");
-        updateButton = new JButton("Update");
-        deleteButton = new JButton("Delete");
-        refreshButton = new JButton("Refresh");
-        exportButton = new JButton("Export to CSV");
+        // === Rounded gradient buttons ===
+        markButton = createGradientButton("📝 Mark Attendance", new Color(33, 150, 243), new Color(30, 136, 229));
+        checkInButton = createGradientButton("⏱ Check In", new Color(76, 175, 80), new Color(56, 142, 60));
+        checkOutButton = createGradientButton("🚪 Check Out", new Color(255, 152, 0), new Color(251, 140, 0));
+        updateButton = createGradientButton("✏️ Update", new Color(63, 81, 181), new Color(48, 63, 159));
+        deleteButton = createGradientButton("🗑 Delete", new Color(244, 67, 54), new Color(229, 57, 53));
+        refreshButton = createGradientButton("⟳ Refresh", new Color(100, 181, 246), new Color(66, 165, 245));
+        exportButton = createGradientButton("📤 Export CSV", new Color(0, 150, 136), new Color(0, 121, 107));
 
-        // Status label
         statusLabel = new JLabel("Ready");
-        statusLabel.setForeground(Color.BLUE);
+        statusLabel.setFont(font);
+        statusLabel.setForeground(new Color(33, 150, 243));
+    }
+
+    private JButton createGradientButton(String text, Color start, Color end) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                GradientPaint gradient = new GradientPaint(0, 0, start, getWidth(), getHeight(), end);
+                g2.setPaint(gradient);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+
+                g2.setColor(Color.WHITE);
+                g2.setFont(getFont());
+                FontMetrics fm = g2.getFontMetrics();
+                int textWidth = fm.stringWidth(getText());
+                int textHeight = fm.getAscent();
+                g2.drawString(getText(), (getWidth() - textWidth) / 2, (getHeight() + textHeight) / 2 - 3);
+                g2.dispose();
+            }
+        };
+        btn.setPreferredSize(new Dimension(160, 40));
+        btn.setFont(new Font("Poppins", Font.PLAIN, 13));
+        btn.setContentAreaFilled(false);
+        btn.setFocusPainted(false);
+        btn.setBorder(new EmptyBorder(10, 20, 10, 20));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setOpaque(false);
+        btn.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                btn.setForeground(new Color(255, 255, 255, 230));
+            }
+            public void mouseExited(MouseEvent e) {
+                btn.setForeground(Color.WHITE);
+            }
+        });
+        return btn;
     }
 
     private void layoutComponents() {
-        setLayout(new BorderLayout());
-        setBorder(new EmptyBorder(20, 20, 20, 20));
+        JPanel topPanel = new JPanel(new BorderLayout(15, 15));
+        topPanel.setBackground(Color.WHITE);
+        topPanel.setBorder(new CompoundBorder(
+                new LineBorder(new Color(230, 230, 230), 1, true),
+                new EmptyBorder(15, 20, 15, 20)
+        ));
 
-        // Title
-        JLabel titleLabel = new JLabel("Attendance Management");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        JPanel quickPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        quickPanel.setOpaque(false);
+        quickPanel.add(new JLabel("Employee:"));
+        quickPanel.add(employeeCombo);
+        quickPanel.add(checkInButton);
+        quickPanel.add(checkOutButton);
+        quickPanel.add(statusLabel);
 
-        // Quick actions panel
-        JPanel quickActionsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        quickActionsPanel.setBorder(BorderFactory.createTitledBorder("Quick Actions"));
-        quickActionsPanel.add(new JLabel("Employee:"));
-        quickActionsPanel.add(employeeCombo);
-        quickActionsPanel.add(checkInButton);
-        quickActionsPanel.add(checkOutButton);
-        quickActionsPanel.add(statusLabel);
-
-        // Search panel
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        searchPanel.setBorder(BorderFactory.createTitledBorder("Search & Filter"));
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
+        searchPanel.setOpaque(false);
         searchPanel.add(new JLabel("Search:"));
         searchPanel.add(searchField);
         searchPanel.add(new JLabel("Status:"));
         searchPanel.add(filterStatusCombo);
         searchPanel.add(refreshButton);
 
-        // Form panel
+        topPanel.add(quickPanel, BorderLayout.WEST);
+        topPanel.add(searchPanel, BorderLayout.EAST);
+
         JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setBorder(BorderFactory.createTitledBorder("Attendance Details"));
+        formPanel.setBackground(Color.WHITE);
+        formPanel.setBorder(new CompoundBorder(
+                new LineBorder(new Color(230, 230, 230), 1, true),
+                new EmptyBorder(15, 25, 15, 25)
+        ));
+
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(8, 8, 8, 8);
         gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        gbc.gridx = 0; gbc.gridy = 0;
-        formPanel.add(new JLabel("Employee:"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(employeeCombo, gbc);
+        String[] labels = {"Employee:", "Date:", "Check In:", "Check Out:", "Status:", "Notes:"};
+        JComponent[] fields = {employeeCombo, dateField, checkInField, checkOutField, statusCombo, notesField};
+        for (int i = 0; i < labels.length; i++) {
+            gbc.gridx = 0; gbc.gridy = i;
+            formPanel.add(new JLabel(labels[i]), gbc);
+            gbc.gridx = 1;
+            formPanel.add(fields[i], gbc);
+        }
 
-        gbc.gridx = 0; gbc.gridy = 1;
-        formPanel.add(new JLabel("Date:"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(dateField, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 2;
-        formPanel.add(new JLabel("Check In:"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(checkInField, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 3;
-        formPanel.add(new JLabel("Check Out:"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(checkOutField, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 4;
-        formPanel.add(new JLabel("Status:"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(statusCombo, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 5;
-        formPanel.add(new JLabel("Notes:"), gbc);
-        gbc.gridx = 1;
-        formPanel.add(notesField, gbc);
-
-        // Button panel
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
+        buttonPanel.setBackground(Color.WHITE);
         buttonPanel.add(markButton);
         buttonPanel.add(updateButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(exportButton);
 
-        // Table panel
-        JScrollPane tableScrollPane = new JScrollPane(attendanceTable);
-        tableScrollPane.setPreferredSize(new Dimension(0, 300));
+        JScrollPane tableScroll = new JScrollPane(attendanceTable);
+        tableScroll.setBorder(new LineBorder(new Color(220, 220, 220), 1, true));
+        tableScroll.getViewport().setBackground(Color.WHITE);
 
-        // Layout
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.add(titleLabel, BorderLayout.NORTH);
-        topPanel.add(quickActionsPanel, BorderLayout.CENTER);
-        topPanel.add(searchPanel, BorderLayout.SOUTH);
+        JPanel tableCard = new JPanel(new BorderLayout());
+        tableCard.setBackground(Color.WHITE);
+        tableCard.setBorder(new CompoundBorder(
+                new LineBorder(new Color(230, 230, 230), 1, true),
+                new EmptyBorder(15, 20, 15, 20)
+        ));
+        tableCard.add(tableScroll, BorderLayout.CENTER);
 
-        JPanel centerPanel = new JPanel(new BorderLayout());
+        JPanel centerPanel = new JPanel(new BorderLayout(10, 10));
+        centerPanel.setBackground(new Color(247, 249, 252));
         centerPanel.add(formPanel, BorderLayout.NORTH);
         centerPanel.add(buttonPanel, BorderLayout.CENTER);
-        centerPanel.add(tableScrollPane, BorderLayout.SOUTH);
+        centerPanel.add(tableCard, BorderLayout.SOUTH);
 
         add(topPanel, BorderLayout.NORTH);
-        add(centerPanel, BorderLayout.CENTER);
+        add(new JScrollPane(centerPanel,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
     }
 
     private void setupListeners() {
-        markButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                markAttendance();
-            }
-        });
-
-        checkInButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                quickCheckIn();
-            }
-        });
-
-        checkOutButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                quickCheckOut();
-            }
-        });
-
-        updateButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateAttendance();
-            }
-        });
-
-        deleteButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                deleteAttendance();
-            }
-        });
-
-        refreshButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                loadAttendance();
-            }
-        });
-
-        exportButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                exportToCSV();
-            }
-        });
-
-        searchField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                filterAttendance();
-            }
-        });
-
-        filterStatusCombo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                filterAttendance();
-            }
-        });
-
+        markButton.addActionListener(e -> markAttendance());
+        checkInButton.addActionListener(e -> quickCheckIn());
+        checkOutButton.addActionListener(e -> quickCheckOut());
+        updateButton.addActionListener(e -> updateAttendance());
+        deleteButton.addActionListener(e -> deleteAttendance());
+        refreshButton.addActionListener(e -> loadAttendance());
+        exportButton.addActionListener(e -> exportToCSV());
+        searchField.addActionListener(e -> filterAttendance());
+        filterStatusCombo.addActionListener(e -> filterAttendance());
         attendanceTable.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                loadSelectedAttendance();
-            }
+            if (!e.getValueIsAdjusting()) loadSelectedAttendance();
         });
     }
 
+    // === DAO logic ===
     private void loadEmployees() {
-        List<Employee> employees = employeeDAO.getAllEmployees();
         employeeCombo.removeAllItems();
-        for (Employee employee : employees) {
-            employeeCombo.addItem(employee);
-        }
+        for (Employee emp : employeeDAO.getAllEmployees()) employeeCombo.addItem(emp);
     }
 
     private void loadAttendance() {
         tableModel.setRowCount(0);
-        List<Attendance> attendanceList = attendanceDAO.getAllAttendance();
-
-        for (Attendance attendance : attendanceList) {
-            addAttendanceToTable(attendance);
-        }
+        for (Attendance att : attendanceDAO.getAllAttendance()) addAttendanceToTable(att);
     }
 
-    private void addAttendanceToTable(Attendance attendance) {
+    private void addAttendanceToTable(Attendance att) {
         Vector<Object> row = new Vector<>();
-        row.add(attendance.getAttendanceId());
-
-        Employee employee = employeeDAO.getEmployeeById(attendance.getEmployeeId());
-        row.add(employee != null ? employee.getFullName() : "Unknown");
-
-        row.add(attendance.getDate());
-        row.add(attendance.getCheckIn());
-        row.add(attendance.getCheckOut());
-        row.add(attendance.getStatus());
-        row.add(attendance.getNotes());
-
+        row.add(att.getAttendanceId());
+        Employee emp = employeeDAO.getEmployeeById(att.getEmployeeId());
+        row.add(emp != null ? emp.getFullName() : "Unknown");
+        row.add(att.getDate());
+        row.add(att.getCheckIn());
+        row.add(att.getCheckOut());
+        row.add(att.getStatus());
+        row.add(att.getNotes());
         tableModel.addRow(row);
     }
 
     private void loadSelectedAttendance() {
-        int selectedRow = attendanceTable.getSelectedRow();
-        if (selectedRow == -1) return;
-
-        int attendanceId = (int) tableModel.getValueAt(selectedRow, 0);
-        String employeeName = (String) tableModel.getValueAt(selectedRow, 1);
-        LocalDate date = LocalDate.parse((String) tableModel.getValueAt(selectedRow, 2));
-
-        Employee employee = employeeDAO.getEmployeeByName(employeeName);
-        if (employee != null) {
-            Attendance attendance = attendanceDAO.getAttendanceByEmployeeAndDate(employee.getEmployeeId(), date);
-
-            if (attendance != null) {
-                dateField.setText(attendance.getDate().toString());
-                checkInField.setText(attendance.getCheckIn() != null ? attendance.getCheckIn().toString() : "");
-                checkOutField.setText(attendance.getCheckOut() != null ? attendance.getCheckOut().toString() : "");
-                statusCombo.setSelectedItem(attendance.getStatus());
-                notesField.setText(attendance.getNotes());
-            }
-        }
+        int row = attendanceTable.getSelectedRow();
+        if (row == -1) return;
+        dateField.setText(tableModel.getValueAt(row, 2).toString());
+        checkInField.setText(String.valueOf(tableModel.getValueAt(row, 3)));
+        checkOutField.setText(String.valueOf(tableModel.getValueAt(row, 4)));
+        statusCombo.setSelectedItem(tableModel.getValueAt(row, 5));
+        notesField.setText(String.valueOf(tableModel.getValueAt(row, 6)));
     }
 
     private void markAttendance() {
-        Employee selectedEmployee = (Employee) employeeCombo.getSelectedItem();
-        if (selectedEmployee == null) {
-            JOptionPane.showMessageDialog(this, "Please select an employee", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        Employee emp = (Employee) employeeCombo.getSelectedItem();
+        if (emp == null) return;
 
         try {
-            LocalDate date = LocalDate.parse(dateField.getText());
-            LocalTime checkIn = checkInField.getText().isEmpty() ? null : LocalTime.parse(checkInField.getText());
-            LocalTime checkOut = checkOutField.getText().isEmpty() ? null : LocalTime.parse(checkOutField.getText());
-            String status = (String) statusCombo.getSelectedItem();
-            String notes = notesField.getText().trim();
+            Attendance a = new Attendance();
+            a.setEmployeeId(emp.getEmployeeId());
+            a.setDate(LocalDate.parse(dateField.getText()));
+            a.setCheckIn(checkInField.getText().isEmpty() ? null : LocalTime.parse(checkInField.getText()));
+            a.setCheckOut(checkOutField.getText().isEmpty() ? null : LocalTime.parse(checkOutField.getText()));
+            a.setStatus((String) statusCombo.getSelectedItem());
+            a.setNotes(notesField.getText().trim());
 
-            Attendance attendance = new Attendance();
-            attendance.setEmployeeId(selectedEmployee.getEmployeeId());
-            attendance.setDate(date);
-            attendance.setCheckIn(checkIn);
-            attendance.setCheckOut(checkOut);
-            attendance.setStatus(status);
-            attendance.setNotes(notes);
-
-            if (attendanceDAO.markAttendance(attendance)) {
-                JOptionPane.showMessageDialog(this, "Attendance marked successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+            if (attendanceDAO.markAttendance(a)) {
+                JOptionPane.showMessageDialog(this, "Attendance marked successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 loadAttendance();
-                clearForm();
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to mark attendance", "Error", JOptionPane.ERROR_MESSAGE);
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Invalid date or time format", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Invalid date/time format", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void quickCheckIn() {
-        Employee selectedEmployee = (Employee) employeeCombo.getSelectedItem();
-        if (selectedEmployee == null) {
-            JOptionPane.showMessageDialog(this, "Please select an employee", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
+        Employee emp = (Employee) employeeCombo.getSelectedItem();
+        if (emp == null) return;
         LocalDate today = LocalDate.now();
         LocalTime now = LocalTime.now();
 
-        Attendance attendance = attendanceDAO.getAttendanceByEmployeeAndDate(selectedEmployee.getEmployeeId(), today);
-
-        if (attendance == null) {
-            attendance = new Attendance();
-            attendance.setEmployeeId(selectedEmployee.getEmployeeId());
-            attendance.setDate(today);
-            attendance.setCheckIn(now);
-            attendance.setStatus("PRESENT");
+        Attendance a = attendanceDAO.getAttendanceByEmployeeAndDate(emp.getEmployeeId(), today);
+        if (a == null) {
+            a = new Attendance();
+            a.setEmployeeId(emp.getEmployeeId());
+            a.setDate(today);
+            a.setCheckIn(now);
+            a.setStatus("PRESENT");
+            a.setNotes("");
         } else {
-            attendance.setCheckIn(now);
-            if (attendance.getStatus().equals("ABSENT")) {
-                attendance.setStatus("PRESENT");
-            }
+            a.setCheckIn(now);
         }
 
-        if (attendanceDAO.markAttendance(attendance)) {
+        if (attendanceDAO.markAttendance(a)) {
             statusLabel.setText("Checked in at " + now);
-            statusLabel.setForeground(Color.GREEN);
+            statusLabel.setForeground(new Color(76, 175, 80));
             loadAttendance();
-        } else {
-            JOptionPane.showMessageDialog(this, "Failed to check in", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void quickCheckOut() {
-        Employee selectedEmployee = (Employee) employeeCombo.getSelectedItem();
-        if (selectedEmployee == null) {
-            JOptionPane.showMessageDialog(this, "Please select an employee", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
+        Employee emp = (Employee) employeeCombo.getSelectedItem();
+        if (emp == null) return;
         LocalDate today = LocalDate.now();
         LocalTime now = LocalTime.now();
 
-        Attendance attendance = attendanceDAO.getAttendanceByEmployeeAndDate(selectedEmployee.getEmployeeId(), today);
-
-        if (attendance == null) {
-            JOptionPane.showMessageDialog(this, "Please check in first", "Error", JOptionPane.ERROR_MESSAGE);
+        Attendance a = attendanceDAO.getAttendanceByEmployeeAndDate(emp.getEmployeeId(), today);
+        if (a == null) {
+            JOptionPane.showMessageDialog(this, "Please check in first.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
-        attendance.setCheckOut(now);
-
-        if (attendanceDAO.updateAttendance(attendance)) {
+        a.setCheckOut(now);
+        if (attendanceDAO.updateAttendance(a)) {
             statusLabel.setText("Checked out at " + now);
-            statusLabel.setForeground(Color.ORANGE);
+            statusLabel.setForeground(new Color(255, 152, 0));
             loadAttendance();
-        } else {
-            JOptionPane.showMessageDialog(this, "Failed to check out", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void updateAttendance() {
-        int selectedRow = attendanceTable.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select attendance record to update", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
+        int row = attendanceTable.getSelectedRow();
+        if (row == -1) return;
         try {
-            int attendanceId = (int) tableModel.getValueAt(selectedRow, 0);
-            LocalDate date = LocalDate.parse(dateField.getText());
-            LocalTime checkIn = checkInField.getText().isEmpty() ? null : LocalTime.parse(checkInField.getText());
-            LocalTime checkOut = checkOutField.getText().isEmpty() ? null : LocalTime.parse(checkOutField.getText());
-            String status = (String) statusCombo.getSelectedItem();
-            String notes = notesField.getText().trim();
+            int id = (int) tableModel.getValueAt(row, 0);
+            Attendance a = new Attendance();
+            a.setAttendanceId(id);
+            a.setDate(LocalDate.parse(dateField.getText()));
+            a.setCheckIn(checkInField.getText().isEmpty() ? null : LocalTime.parse(checkInField.getText()));
+            a.setCheckOut(checkOutField.getText().isEmpty() ? null : LocalTime.parse(checkOutField.getText()));
+            a.setStatus((String) statusCombo.getSelectedItem());
+            a.setNotes(notesField.getText());
 
-            Attendance attendance = new Attendance();
-            attendance.setAttendanceId(attendanceId);
-            attendance.setDate(date);
-            attendance.setCheckIn(checkIn);
-            attendance.setCheckOut(checkOut);
-            attendance.setStatus(status);
-            attendance.setNotes(notes);
-
-            if (attendanceDAO.updateAttendance(attendance)) {
-                JOptionPane.showMessageDialog(this, "Attendance updated successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+            if (attendanceDAO.updateAttendance(a)) {
+                JOptionPane.showMessageDialog(this, "Attendance updated!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 loadAttendance();
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to update attendance", "Error", JOptionPane.ERROR_MESSAGE);
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Invalid date or time format", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Invalid format", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void deleteAttendance() {
-        int selectedRow = attendanceTable.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select attendance record to delete", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        int row = attendanceTable.getSelectedRow();
+        if (row == -1) return;
+        int id = (int) tableModel.getValueAt(row, 0);
 
-        int option = JOptionPane.showConfirmDialog(
-                this,
-                "Are you sure you want to delete this attendance record?",
-                "Confirm Delete",
-                JOptionPane.YES_NO_OPTION
-        );
-
-        if (option == JOptionPane.YES_OPTION) {
-            int attendanceId = (int) tableModel.getValueAt(selectedRow, 0);
-
-            if (attendanceDAO.deleteAttendance(attendanceId)) {
-                JOptionPane.showMessageDialog(this, "Attendance deleted successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
-                loadAttendance();
-                clearForm();
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to delete attendance", "Error", JOptionPane.ERROR_MESSAGE);
-            }
+        int confirm = JOptionPane.showConfirmDialog(this, "Delete selected record?", "Confirm", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION && attendanceDAO.deleteAttendance(id)) {
+            JOptionPane.showMessageDialog(this, "Deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            loadAttendance();
         }
     }
 
     private void filterAttendance() {
-        String searchText = searchField.getText().trim().toLowerCase();
-        String statusFilter = (String) filterStatusCombo.getSelectedItem();
-
+        String search = searchField.getText().trim().toLowerCase();
+        String status = (String) filterStatusCombo.getSelectedItem();
         tableModel.setRowCount(0);
-        List<Attendance> attendanceList = attendanceDAO.getAllAttendance();
 
-        for (Attendance attendance : attendanceList) {
-            Employee employee = employeeDAO.getEmployeeById(attendance.getEmployeeId());
-            String employeeName = employee != null ? employee.getFullName().toLowerCase() : "";
-
-            boolean matchesSearch = searchText.isEmpty() || employeeName.contains(searchText);
-            boolean matchesStatus = statusFilter.equals("All") || attendance.getStatus().equals(statusFilter);
-
-            if (matchesSearch && matchesStatus) {
-                addAttendanceToTable(attendance);
-            }
+        for (Attendance a : attendanceDAO.getAllAttendance()) {
+            Employee emp = employeeDAO.getEmployeeById(a.getEmployeeId());
+            String name = emp != null ? emp.getFullName().toLowerCase() : "";
+            boolean matchesSearch = search.isEmpty() || name.contains(search);
+            boolean matchesStatus = status.equals("All") || a.getStatus().equals(status);
+            if (matchesSearch && matchesStatus) addAttendanceToTable(a);
         }
     }
 
     private void exportToCSV() {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("CSV files", "csv"));
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("CSV files", "csv"));
+        if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            String path = chooser.getSelectedFile().getAbsolutePath();
+            if (!path.endsWith(".csv")) path += ".csv";
 
-        int result = fileChooser.showSaveDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            String filePath = fileChooser.getSelectedFile().getAbsolutePath();
-            if (!filePath.endsWith(".csv")) {
-                filePath += ".csv";
-            }
-
-            try (java.io.PrintWriter writer = new java.io.PrintWriter(filePath)) {
-                // Write headers
+            try (java.io.PrintWriter w = new java.io.PrintWriter(path)) {
                 for (int i = 0; i < tableModel.getColumnCount(); i++) {
-                    writer.print(tableModel.getColumnName(i));
-                    if (i < tableModel.getColumnCount() - 1) {
-                        writer.print(",");
-                    }
+                    w.print(tableModel.getColumnName(i));
+                    if (i < tableModel.getColumnCount() - 1) w.print(",");
                 }
-                writer.println();
-
-                // Write data
-                for (int i = 0; i < tableModel.getRowCount(); i++) {
-                    for (int j = 0; j < tableModel.getColumnCount(); j++) {
-                        Object value = tableModel.getValueAt(i, j);
-                        writer.print(value != null ? value.toString() : "");
-                        if (j < tableModel.getColumnCount() - 1) {
-                            writer.print(",");
-                        }
+                w.println();
+                for (int r = 0; r < tableModel.getRowCount(); r++) {
+                    for (int c = 0; c < tableModel.getColumnCount(); c++) {
+                        w.print(tableModel.getValueAt(r, c));
+                        if (c < tableModel.getColumnCount() - 1) w.print(",");
                     }
-                    writer.println();
+                    w.println();
                 }
-
-                JOptionPane.showMessageDialog(this, "Attendance exported successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
-            } catch (Exception e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Failed to export attendance", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Exported successfully!");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Export failed!", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
-    }
-
-    private void clearForm() {
-        dateField.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        checkInField.setText("");
-        checkOutField.setText("");
-        statusCombo.setSelectedIndex(0);
-        notesField.setText("");
     }
 }

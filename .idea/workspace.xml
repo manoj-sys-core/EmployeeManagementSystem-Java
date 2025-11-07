@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="5fe2cf8c-1362-425f-869c-38ebdbc43686" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/employee/utils/IconProvider.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/icons/attendance.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/icons/departments.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/icons/employees.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/icons/home.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/icons/profile.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/icons/reports.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/icons/settings.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/EmployeeManagementSystem.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/dao/AttendanceDAO.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/dao/DepartmentDAO.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/dao/EmployeeDAO.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/dao/UserDAO.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/AttendancePanel$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/AttendancePanel$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/AttendancePanel$3.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/AttendancePanel$4.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/AttendancePanel.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/DashboardPanel$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/DashboardPanel$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/DashboardPanel$3.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/DashboardPanel$4.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/DashboardPanel$5$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/DashboardPanel$5.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/DashboardPanel$6$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/DashboardPanel$6.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/DashboardPanel.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/DepartmentDialog$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/DepartmentDialog$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/DepartmentDialog.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/DepartmentManagementPanel$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/DepartmentManagementPanel$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/DepartmentManagementPanel$3.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/DepartmentManagementPanel$4.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/DepartmentManagementPanel.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/EmployeeAttendancePanel.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/EmployeeDialog$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/EmployeeDialog.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/EmployeeManagementPanel$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/EmployeeManagementPanel$10.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/EmployeeManagementPanel$11.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/EmployeeManagementPanel$12.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/EmployeeManagementPanel$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/EmployeeManagementPanel$3.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/EmployeeManagementPanel$4.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/EmployeeManagementPanel$5.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/EmployeeManagementPanel$6.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/EmployeeManagementPanel$7.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/EmployeeManagementPanel$8.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/EmployeeManagementPanel$9.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/EmployeeManagementPanel$RoundedBorder.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/EmployeeManagementPanel.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/EmployeeProfilePanel.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/LeaveRequestPanel.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/LoginFrame$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/LoginFrame$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/LoginFrame$3.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/LoginFrame$GradientButton.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/LoginFrame.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/MainFrame$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/MainFrame$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/MainFrame$NavItem$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/MainFrame$NavItem.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/MainFrame$TransitionPanel.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/MainFrame.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/ReportsPanel$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/ReportsPanel$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/ReportsPanel.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/SalaryManagementPanel.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/SettingsPanel$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/gui/SettingsPanel.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/model/Attendance.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/model/Department.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/model/Employee.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/model/User.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/utils/DatabaseUtil.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/utils/IconProvider.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/utils/ImageUtils.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/utils/PDFExportUtil.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/com/employee/utils/ThemeUtil.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/config.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/icons/app.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/icons/attendance.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/icons/backup.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/icons/check.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/icons/db.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/icons/departments.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/icons/email.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/icons/employees.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/icons/folder.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/icons/home.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/icons/profile.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/icons/reestore.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/icons/reports.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/icons/reset.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/icons/save.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/icons/settings.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/employee-management-system-1.0.0.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/maven-archiver/pom.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/original-employee-management-system-1.0.0.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dependency-reduced-pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/dependency-reduced-pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/employee/gui/AttendancePanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/employee/gui/AttendancePanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/employee/gui/DashboardPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/employee/gui/DashboardPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/employee/gui/DepartmentDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/employee/gui/DepartmentDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/employee/gui/DepartmentManagementPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/employee/gui/DepartmentManagementPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/employee/gui/EmployeeDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/employee/gui/EmployeeDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/employee/gui/EmployeeManagementPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/employee/gui/EmployeeManagementPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/employee/gui/LoginFrame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/employee/gui/LoginFrame.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/employee/gui/MainFrame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/employee/gui/MainFrame.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/employee/gui/ReportsPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/employee/gui/ReportsPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/employee/gui/SettingsPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/employee/gui/SettingsPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/employee/model/Department.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/employee/model/Department.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/employee/model/Employee.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/employee/model/Employee.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/config.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/config.properties" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="34hSrYbHhGwYIUDmRVw1fuFqWdP" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.EmployeeManagementSystem.executor": "Run",
+    "Application.LoginFrame.executor": "Run",
+    "Application.MainFrame.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/Users/manoj/Downloads/School-Management-System-using-Java-main/employee-management-system/src/main/resources/icons",
+    "onboarding.tips.debug.path": "C:/Users/manoj/Downloads/School-Management-System-using-Java-main/employee-management-system/src/main/java/com/employee/Main.java",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\manoj\Downloads\School-Management-System-using-Java-main\employee-management-system\src\main\resources\icons" />
+      <recent name="C:\Users\manoj\Downloads\School-Management-System-using-Java-main\employee-management-system\src\main\java\com\employee\gui" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\manoj\Downloads\School-Management-System-using-Java-main\employee-management-system\src\main\resources\icons" />
+    </key>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="5fe2cf8c-1362-425f-869c-38ebdbc43686" name="Changes" comment="" />
+      <created>1761664510649</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1761664510649</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
