@@ -10,13 +10,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-/**
- * Refined modern SaaS Login UI.
- * - LEFT: cool dark-blue gradient branding
- * - RIGHT: clean, centered login card with consistent spacing
- * - Buttons laid out in a single row: Sign in (left) and Exit (right)
- * - Smooth, visible rounded gradient buttons implemented via GradientButton
- */
+
 public class LoginFrame extends JFrame {
     private final UserDAO userDAO;
     private JTextField usernameField;
@@ -37,7 +31,7 @@ public class LoginFrame extends JFrame {
     private void initComponents() {
         usernameField = new JTextField(1); // width controlled by layout
         passwordField = new JPasswordField(1);
-        showPassword = new JCheckBox("Show");
+        showPassword = new JCheckBox("Show Password");
 
         usernameField.putClientProperty("JTextField.placeholderText", "name@company.com");
         passwordField.putClientProperty("JTextField.placeholderText", "Enter your password");
@@ -98,7 +92,7 @@ public class LoginFrame extends JFrame {
         left.add(logo, lg);
 
         lg.gridy++;
-        JLabel product = new JLabel("Manthan HR Suite");
+        JLabel product = new JLabel("WorkForce One");
         product.setFont(new Font("Poppins", Font.BOLD, 28));
         product.setForeground(Color.WHITE);
         left.add(product, lg);

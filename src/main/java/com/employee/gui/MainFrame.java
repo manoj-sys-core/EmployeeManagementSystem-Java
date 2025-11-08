@@ -1,7 +1,8 @@
 package com.employee.gui;
 import com.employee.model.User;
 import com.employee.utils.DatabaseUtil;
-
+import com.employee.dao.UserDAO;
+import com.employee.model.User;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -12,9 +13,7 @@ import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * MainFrame — improved icon scaling (36px, progressive multi-step downscale to avoid blur)
- */
+
 public class MainFrame extends JFrame {
     private final User currentUser;
     private JPanel contentPanel;
@@ -128,7 +127,7 @@ public class MainFrame extends JFrame {
 
         logoLabel = createLogoLabel();
 
-        nameLabel = new JLabel("Manthan");
+        nameLabel = new JLabel(currentUser.getUsername());
         nameLabel.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 14));
         nameLabel.setForeground(new Color(33, 37, 41));
         nameLabel.setBorder(new EmptyBorder(0, 8, 0, 0));
