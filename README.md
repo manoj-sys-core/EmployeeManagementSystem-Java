@@ -24,7 +24,7 @@ Before you begin, ensure you have the following installed:
 
 1.  **Clone the Repository:**
     ```bash
-    git clone https://github.com/vs-sync/EmployeeManagementSystem-Java.git
+    git clone https://github.com/manoj-sys-core/EmployeeManagementSystem-Java
     cd EmployeeManagementSystem-Java
     ```
 
