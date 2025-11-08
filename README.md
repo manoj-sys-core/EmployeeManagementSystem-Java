@@ -1,10 +1,26 @@
 # 🧑‍💼 Employee Management System (Java)
 
-![Java](https://img.shields.io/badge/Java-17+-red?logo=java)
-![MySQL](https://img.shields.io/badge/MySQL-Database-blue?logo=mysql)
-![Maven](https://img.shields.io/badge/Maven-Build%20Tool-orange?logo=apache-maven)
-![License](https://img.shields.io/badge/License-Apache%202.0-green?logo=apache)
-![IDE](https://img.shields.io/badge/IDE-IntelliJ%20IDEA-blueviolet?logo=intellij-idea)
+<table align="center">
+  <tr>
+    <td align="center" width="150">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" width="85" height="85" alt="Java"/><br>
+      <b>Java</b>
+    </td>
+    <td align="center" width="150">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original-wordmark.svg" width="95" height="95" alt="MySQL"/><br>
+      <b>MySQL</b>
+    </td>
+    <td align="center" width="150">
+      <img src="https://www.vectorlogo.zone/logos/apache_maven/apache_maven-icon.svg" width="90" height="90" alt="Maven"/><br>
+      <b>Maven</b>
+    </td>
+    <td align="center" width="150">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" width="85" height="85" alt="Git"/><br>
+      <b>Git</b>
+    </td>
+  </tr>
+</table>
+
 
 ---
 
@@ -97,6 +113,60 @@ java -jar target/EmployeeManagementSystem.jar
 ```
 ---
 ## 🖼️ Demo Screenshots
+### 🔐 Login Screen
+> The secure login interface for administrators and employees.
+<p align="center">
+  <img src="assets/login.png" alt="Login Screen" width="700">
+</p>
+
+---
+
+### 🏠 Dashboard
+> A modern, intuitive dashboard providing an overview of key metrics and quick access to modules.
+<p align="center">
+  <img src="assets/dashboard.png" alt="Dashboard" width="700">
+</p>
+
+---
+
+### 👥 Employee Management
+> Manage all employee records — add, update, delete, or view employee details.
+<p align="center">
+  <img src="assets/employees.png" alt="Employee Management" width="700">
+</p>
+
+---
+
+### 🏢 Department Management
+> Create and organize departments, assign employees, and manage departmental data.
+<p align="center">
+  <img src="assets/deparments.png" alt="Department Management" width="700">
+</p>
+
+---
+
+### 📅 Attendance Tracking
+> Track daily attendance, working hours, and leave records.
+<p align="center">
+  <img src="assets/attendance.png" alt="Attendance Tracking" width="700">
+</p>
+
+---
+
+### 📊 Reports
+> Generate detailed reports for employees, departments, and attendance insights.
+<p align="center">
+  <img src="assets/reports.png" alt="Reports" width="700">
+</p>
+
+---
+
+### ⚙️ Settings Panel
+> Configure database connections, backups, email settings, and more.
+<p align="center">
+  <img src="assets/settings.png" alt="Settings Panel" width="700">
+</p>
+
 ---
 ## ⚙️ Configuration Options
 
